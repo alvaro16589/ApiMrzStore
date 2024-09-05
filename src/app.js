@@ -4,6 +4,8 @@ import statusProdRoutes from "./routes/starus_prod.routes.js"
 import categoryRoutes from "./routes/category.routes.js"
 import OrderRoutes from "./routes/orders.routes.js"
 import UsersRoutes from "./routes/users.routes.js"
+import ProductsRoutes from "./routes/products.routes.js"
+import OrderItemsRoutes from "./routes/orderItems.routes.js"
 //import routes
 const app = express();
 app.use(express.json())//convert  body to jSon sentence
@@ -21,7 +23,8 @@ app.use(pref, statusProdRoutes);
 app.use(pref, categoryRoutes);
 app.use(pref, OrderRoutes);
 app.use(pref, UsersRoutes);
-
+app.use(pref, ProductsRoutes);
+app.use(pref, OrderItemsRoutes);
 //middlewere
 
 app.unsubscribe((req, res, next) => {
