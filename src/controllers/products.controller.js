@@ -35,7 +35,7 @@ const actionProductsController = {
                 status_prod_id,
                 category_id
              } = req.body;
-            const [rows] = await pool.query('INSERT INTO products (name, description, price, image, status_prod_id, category_id) VALUES (?,?,?,?,?)', 
+            const [rows] = await pool.query('INSERT INTO products (name, description, price, image, status_prod_id, category_id) VALUES (?,?,?,?,?,?)', 
                 [
                     name,
                     description,
