@@ -31,14 +31,16 @@ const actionProductsController = {
                 name,
                 description,
                 price,
+                image,
                 status_prod_id,
                 category_id
              } = req.body;
-            const [rows] = await pool.query('INSERT INTO products (name, description, price, status_prod_id, category_id) VALUES (?,?,?,?,?)', 
+            const [rows] = await pool.query('INSERT INTO products (name, description, price, image, status_prod_id, category_id) VALUES (?,?,?,?,?)', 
                 [
                     name,
                     description,
                     price,
+                    image,
                     status_prod_id,
                     category_id
                  ]);
@@ -59,14 +61,16 @@ const actionProductsController = {
                 name,
                 description,
                 price,
+                image,
                 status_prod_id,
                 category_id
             } = req.body;
-            const [result] = await pool.query('UPDATE products SET name = IFNULL(?,name), description = IFNULL(?,description), price = IFNULL(?,price), status_prod_id = IFNULL(?,status_prod_id), category_id = IFNULL(?,category_id) WHERE id = ?', 
+            const [result] = await pool.query('UPDATE products SET name = IFNULL(?,name), description = IFNULL(?,description), price = IFNULL(?,price), image = IFNULL(?,image), status_prod_id = IFNULL(?,status_prod_id), category_id = IFNULL(?,category_id) WHERE id = ?', 
                 [
                     name,
                     description,
                     price,
+                    image,
                     status_prod_id,
                     category_id, 
                     id
