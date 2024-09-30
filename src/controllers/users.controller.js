@@ -16,7 +16,15 @@ const actionUsersController = {
 
     getOneUsers: async (req, res) => {
         try {
-            const [rows] = (await pool.query(('SELECT * FROM users WHERE id = ?'), [req.params.id]));
+            const { 
+                email,
+                password
+            } = req.body;
+            const [rows] = (await pool.query(('SELECT id, name, last_name, email, gender, date_of_birth, rol FROM users WHERE email = ? AND password = ?'), 
+            [
+                email, 
+                password
+            ]));
             res.send(rows);
         } catch (error) {
             return res.status(500).json({
@@ -27,8 +35,25 @@ const actionUsersController = {
     //METOD STORE
     createUsers: async (req, res) => {
         try {
-            const { name, last_name, email, gender, date_of_birth } = req.body;
-            const [rows] = await pool.query('INSERT INTO users (name, last_name, email, gender, date_of_birth) VALUES (?,?,?,?,?)', [name, last_name, email, gender, date_of_birth ]);
+            const { 
+                name, 
+                last_name, 
+                email, 
+                gender, 
+                date_of_birth, 
+                password, 
+                rol 
+            } = req.body;
+            const [rows] = await pool.query('INSERT INTO users (name, last_name, email, gender, date_of_birth, password, rol) VALUES (?,?,?,?,?,?,?)', 
+                [
+                    name, 
+                    last_name, 
+                    email, 
+                    gender, 
+                    date_of_birth,
+                    password, 
+                    rol 
+                ]);
             res.send({ rows });
         } catch (error) {
 
@@ -47,15 +72,19 @@ const actionUsersController = {
                 last_name, 
                 email, 
                 gender, 
-                date_of_birth  
+                date_of_birth,
+                password, 
+                rol   
             } = req.body;
-            const [result] = await pool.query('UPDATE users SET name = IFNULL(?,name), last_name = IFNULL(?,last_name), email = IFNULL(?,email), gender = IFNULL(?,gender), date_of_birth = IFNULL(?,date_of_birth) WHERE id = ?', 
+            const [result] = await pool.query('UPDATE users SET name = IFNULL(?,name), last_name = IFNULL(?,last_name), email = IFNULL(?,email), gender = IFNULL(?,gender), date_of_birth = IFNULL(?,date_of_birth), password = IFNULL(?,password), rol = IFNULL(?,rol) WHERE id = ?', 
                 [
                     name, 
                     last_name, 
                     email, 
                     gender, 
-                    date_of_birth, 
+                    date_of_birth,
+                    password, 
+                    rol, 
                     id
                 ]);
             //console.log(result)
