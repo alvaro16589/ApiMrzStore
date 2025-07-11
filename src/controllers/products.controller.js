@@ -48,6 +48,7 @@ const actionProductsController = {
         } catch (error) {
 
             return res.status(500).json({
+                error,
                 message: 'Something wrong on server, function createProducts'
             })
         }
