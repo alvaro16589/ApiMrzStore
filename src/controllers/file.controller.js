@@ -11,10 +11,8 @@ const storage = multer.diskStorage({
     },
     filename: (req, file, cb) => {
         // Renombrar el archivo para evitar duplicados
-        const ext = path.extname(file.originalname);
-        const filename = `${Date.now()}-${file.fieldname}${ext}`;
-        cb(null, filename);
-        
+        const filename = file.originalname;        
+        cb(null, filename);        
     }
 });
 const upload = multer({ storage });
