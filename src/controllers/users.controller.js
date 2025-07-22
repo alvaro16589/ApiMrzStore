@@ -1,5 +1,6 @@
 import { pool } from "../db.js";
-
+import  jwt  from  'jsonwebtoken'
+import cookieParser from "cookie-parser";
 const actionUsersController = {
     //metod INDEX
     getUsers: async (req, res) => {
@@ -25,7 +26,21 @@ const actionUsersController = {
                 email, 
                 password
             ]));
-            res.send(rows);
+            // JWT CREATION
+            const token = jwt.sign(
+                {id: rows[0].id, userName: rows[0].name},
+                process.env.JWT_SECRET,
+                {
+                    expiresIn: '1h'
+                })
+            
+            res.cookieParser('access_token', token, {
+                httpOnly: true,
+                //secure: process.env.NODE_ENV === 'production', // Use secure cookies in production
+                sameSite: 'strict', // Prevent CSRF attacks
+                maxAge: 1000 * 60 * 60 // 1 hour
+            })
+            .send({rows,token});//SEND TOKEN
         } catch (error) {
             return res.status(500).json({
                 message: 'Something wrong on server'
