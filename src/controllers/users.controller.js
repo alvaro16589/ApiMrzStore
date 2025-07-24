@@ -1,6 +1,9 @@
 import { pool } from "../db.js";
-import  jwt  from  'jsonwebtoken'
-import cookieParser from "cookie-parser";
+import jwt from 'jsonwebtoken';
+
+import bcrypt from "bcrypt";
+
+
 const actionUsersController = {
     //metod INDEX
     getUsers: async (req, res) => {
@@ -17,63 +20,99 @@ const actionUsersController = {
 
     getOneUsers: async (req, res) => {
         try {
-            const { 
+            const {
                 email,
                 password
-            } = req.body;
-            const [rows] = (await pool.query(('SELECT id, name, last_name, email, gender, date_of_birth, rol FROM users WHERE email = ? AND password = ?'), 
-            [
-                email, 
-                password
-            ]));
-            // JWT CREATION
-            const token = jwt.sign(
-                {id: rows[0].id, userName: rows[0].name},
-                process.env.JWT_SECRET,
-                {
-                    expiresIn: '1h'
-                })
-            
-            res.cookieParser('access_token', token, {
-                httpOnly: true,
-                //secure: process.env.NODE_ENV === 'production', // Use secure cookies in production
-                sameSite: 'strict', // Prevent CSRF attacks
-                maxAge: 1000 * 60 * 60 // 1 hour
-            })
-            .send({rows,token});//SEND TOKEN
-        } catch (error) {
-            return res.status(500).json({
-                message: 'Something wrong on server'
+            } = req.body;// data form user
+            const userSearch = (await pool.query(('SELECT password FROM users WHERE email = ? '),//search password by email
+                [
+                    email
+                ]));
+
+            if (userSearch[0].length > 0) {//if user exist
+                const isMatch = await bcrypt.compare(password, userSearch[0][0].password);
+
+                if (isMatch) {
+
+                    const [rows] = (await pool.query(('SELECT id, name, last_name, email, gender, date_of_birth, rol FROM users WHERE email = ?'),
+                        [
+                            email,
+                            password
+                        ]));
+
+                    // JWT CREATION
+                    const token = jwt.sign(
+                        { id: rows[0].id, userName: rows[0].name },
+                        process.env.JWT_SECRET,
+                        {
+                            expiresIn: '1h'
+                        })
+
+                    res.cookie('access_token', token, {
+                        httpOnly: true,
+                        //secure: process.env.NODE_ENV === 'production', // Use secure cookies in production
+                        sameSite: 'strict', // Prevent CSRF attacks
+                        maxAge: 1000 * 60 * 60 // 1 hour
+                    }).send({ rows, token });//SEND TOKEN
+                } else {
+                    throw new Error('La contraseña es incorrecta. Por favor, inténtelo de nuevo.');
+                }
+
+            } else {
+                throw new Error('Email de usuario no encontrado. Por favor, verifique su dirección.');
+            }
+
+
+        } catch (Error) {
+
+            return res.status(401).json({
+                message: Error.message ?? 'Something wrong on server, function getOneUsers'
             })
         }
+    },
+    // logout
+    logout: (req, res) => {
+        res.clearCookie('access_token').json({
+            message: 'Logout successful'});
     },
     //METOD STORE
     createUsers: async (req, res) => {
         try {
-            const { 
-                name, 
-                last_name, 
-                email, 
-                gender, 
-                date_of_birth, 
-                password, 
-                rol 
-            } = req.body;
-            const [rows] = await pool.query('INSERT INTO users (name, last_name, email, gender, date_of_birth, password, rol) VALUES (?,?,?,?,?,?,?)', 
+            const {
+                name,
+                last_name,
+                email,
+                gender,
+                date_of_birth,
+                password,
+                rol
+            } = {
+                name: req.body.name,
+                last_name: req.body.last_name,
+                email: req.body.email,
+                gender: req.body.gender,
+                date_of_birth: req.body.date_of_birth,
+                password: await bcrypt.hash(req.body.password, 10),
+                rol: req.body.rol
+            };
+            const [rows] = await pool.query('INSERT INTO users (name, last_name, email, gender, date_of_birth, password, rol) VALUES (?,?,?,?,?,?,?)',
                 [
-                    name, 
-                    last_name, 
-                    email, 
-                    gender, 
+                    name,
+                    last_name,
+                    email,
+                    gender,
                     date_of_birth,
-                    password, 
-                    rol 
+                    password,
+                    rol
                 ]);
             res.send({ rows });
         } catch (error) {
-
+            console.log(error)
             return res.status(500).json({
-                message: 'Something wrong on server, function createUsers'
+
+                message: 'Something wrong on server, function createUsers',
+
+
             })
         }
     },
@@ -82,24 +121,24 @@ const actionUsersController = {
 
         try {
             const { id } = req.params;
-            const { 
-                name, 
-                last_name, 
-                email, 
-                gender, 
+            const {
+                name,
+                last_name,
+                email,
+                gender,
                 date_of_birth,
-                password, 
-                rol   
+                password,
+                rol
             } = req.body;
-            const [result] = await pool.query('UPDATE users SET name = IFNULL(?,name), last_name = IFNULL(?,last_name), email = IFNULL(?,email), gender = IFNULL(?,gender), date_of_birth = IFNULL(?,date_of_birth), password = IFNULL(?,password), rol = IFNULL(?,rol) WHERE id = ?', 
+            const [result] = await pool.query('UPDATE users SET name = IFNULL(?,name), last_name = IFNULL(?,last_name), email = IFNULL(?,email), gender = IFNULL(?,gender), date_of_birth = IFNULL(?,date_of_birth), password = IFNULL(?,password), rol = IFNULL(?,rol) WHERE id = ?',
                 [
-                    name, 
-                    last_name, 
-                    email, 
-                    gender, 
+                    name,
+                    last_name,
+                    email,
+                    gender,
                     date_of_birth,
-                    password, 
-                    rol, 
+                    password,
+                    rol,
                     id
                 ]);
             //console.log(result)

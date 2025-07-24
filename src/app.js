@@ -8,6 +8,7 @@ import ProductsRoutes from "./routes/products.routes.js"
 import OrderItemsRoutes from "./routes/orderItems.routes.js"
 import ViewsRoutes from "./routes/views.routes.js"
 import fileRoutes from "./routes/file.routes.js"
+import cookieParser  from "cookie-parser";
 //import routes
 const app = express();
 app.use(express.json())//convert  body to jSon sentence
@@ -29,7 +30,8 @@ app.use(pref, UsersRoutes);
 app.use(pref, ProductsRoutes);
 app.use(pref, OrderItemsRoutes);
 app.use(pref, ViewsRoutes);
-app.use(pref, fileRoutes)
+app.use(pref, fileRoutes);
+app.use(cookieParser());//middleware for cookies
 //middlewere
 
 app.use((req, res, next) => {
