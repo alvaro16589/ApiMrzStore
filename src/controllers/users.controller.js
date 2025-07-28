@@ -24,6 +24,7 @@ const actionUsersController = {
                 email,
                 password
             } = req.body;// data form user
+
             const userSearch = (await pool.query(('SELECT password FROM users WHERE email = ? '),//search password by email
                 [
                     email
@@ -32,7 +33,7 @@ const actionUsersController = {
             if (userSearch[0].length > 0) {//if user exist
                 const isMatch = await bcrypt.compare(password, userSearch[0][0].password);
 
-                if (isMatch) {
+                if (isMatch) {//if password match
 
                     const [rows] = (await pool.query(('SELECT id, name, last_name, email, gender, date_of_birth, rol FROM users WHERE email = ?'),
                         [
@@ -42,16 +43,22 @@ const actionUsersController = {
 
                     // JWT CREATION
                     const token = jwt.sign(
-                        { id: rows[0].id, userName: rows[0].name },
+                        { 
+                            id: rows[0].id, 
+                            name: rows[0].name, 
+                            email: rows[0].email
+                        },
                         process.env.JWT_SECRET,
                         {
                             expiresIn: '1h'
                         })
 
                     res.cookie('access_token', token, {
-                        httpOnly: true,
-                        //secure: process.env.NODE_ENV === 'production', // Use secure cookies in production
-                        sameSite: 'strict', // Prevent CSRF attacks
+                        // domain: 'localhost', // o omite este atributo
+                        httpOnly: true, // Prevents JavaScript access to the cookie
+                        path: '/',
+                        secure: false, // process.env.NODE_ENV === 'production', // Use secure cookies in production
+                        sameSite: 'lax', //'Lax o 'Strict' o 'None' Prevent CSRF attacks
                         maxAge: 1000 * 60 * 60 // 1 hour
                     }).send({ rows, token });//SEND TOKEN
                 } else {
@@ -73,7 +80,33 @@ const actionUsersController = {
     // logout
     logout: (req, res) => {
         res.clearCookie('access_token').json({
-            message: 'Logout successful'});
+            message: 'Logout successful'
+        });
+    },
+    // logwatcher
+    logWatcher: async (req, res) => {
+        const token = req.cookies.access_token; // Obtiene el token del cookie
+        
+        if (token) {
+            try {
+                // Verifica y decodifica el token
+                const data = jwt.verify(token, process.env.JWT_SECRET);
+                console.log(data);
+                const [rows] = (await pool.query(('SELECT id, name, last_name, email, gender, date_of_birth, rol FROM users WHERE id = ?'),
+                        
+                            data.id
+                        ));
+                console.log(rows);
+                res.send(rows);
+
+            } catch (error) {
+                return res.status(401).json({
+                message: 'Ha ocurrido un error al verificar el token.'
+            })
+            }
+        }
+
+
     },
     //METOD STORE
     createUsers: async (req, res) => {
