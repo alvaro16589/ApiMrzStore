@@ -91,7 +91,7 @@ const actionUsersController = {
             try {
                 // Verifica y decodifica el token
                 const data = jwt.verify(token, process.env.JWT_SECRET);
-                console.log(data);
+                
                 const [rows] = (await pool.query(('SELECT id, name, last_name, email, gender, date_of_birth, rol FROM users WHERE id = ?'),
                         
                             data.id
