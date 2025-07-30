@@ -43,9 +43,9 @@ const actionUsersController = {
 
                     // JWT CREATION
                     const token = jwt.sign(
-                        { 
-                            id: rows[0].id, 
-                            name: rows[0].name, 
+                        {
+                            id: rows[0].id,
+                            name: rows[0].name,
                             email: rows[0].email
                         },
                         process.env.JWT_SECRET,
@@ -86,23 +86,23 @@ const actionUsersController = {
     // logwatcher
     logWatcher: async (req, res) => {
         const token = req.cookies.access_token; // Obtiene el token del cookie
-        
+
         if (token) {
             try {
                 // Verifica y decodifica el token
                 const data = jwt.verify(token, process.env.JWT_SECRET);
-                
+
                 const [rows] = (await pool.query(('SELECT id, name, last_name, email, gender, date_of_birth, rol FROM users WHERE id = ?'),
-                        
-                            data.id
-                        ));
-                console.log(rows);
+
+                    data.id
+                ));
+
                 res.send(rows);
 
             } catch (error) {
                 return res.status(401).json({
-                message: 'Ha ocurrido un error al verificar el token.'
-            })
+                    message: 'Ha ocurrido un error al verificar el token.'
+                })
             }
         }
 
@@ -149,6 +149,21 @@ const actionUsersController = {
             })
         }
     },
+    // Encontrar email
+    findEmail: async (req, res) => {
+        try {
+            const {email} = req.body;
+            const [result] = await pool.query('SELECT CASE WHEN EXISTS (SELECT email FROM users WHERE email = ?) THEN TRUE ELSE FALSE END AS result',
+               [email]);
+            
+            return res.send(result[0]);
+        } catch (error) {
+            
+            return res.status(500).json({
+                message: 'Something wrong on server'
+            })
+        }
+    },
     //METOD UPDATE
     updateUsers: async (req, res) => {
 
@@ -175,7 +190,7 @@ const actionUsersController = {
                     id
                 ]);
             //console.log(result)
-            if (result.affectedRows === 0) return res.status(404).json({
+            if (result.length=== 0) return res.status(404).json({
                 message: "Users not updated"
             }); res.sendStatus(204);
         } catch (error) {
@@ -200,6 +215,7 @@ const actionUsersController = {
             })
         }
     }
+
 
 }
 

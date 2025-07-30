@@ -8,14 +8,15 @@ const roat = {
     defID : "/users/:id",
     defp1 : "/users/u",
     defOut: "/users/logout",
-    defWatch: "/users/logwatcher"
-
+    defWatch: "/users/logwatcher",
+    defEmail: '/users/findemail'
     
 }
 
 router.get(roat.def,actionUsersController.getUsers);
 router.post(roat.defWatch,actionUsersController.logWatcher);
 router.post(roat.defp1,actionUsersController.getOneUsers);
+router.post(roat.defEmail,actionUsersController.findEmail);
 router.get(roat.defOut,actionUsersController.logout);
 router.post(roat.def,actionUsersController.createUsers);
 router.patch(roat.defID,actionUsersController.updateUsers);
