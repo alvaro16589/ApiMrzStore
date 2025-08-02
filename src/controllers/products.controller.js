@@ -1,5 +1,8 @@
 import { pool } from "../db.js";
 
+import path from 'path';
+import fs from 'fs';
+
 const actionProductsController = {
     //metod INDEX
     getProducts: async (req, res) => {
@@ -27,15 +30,15 @@ const actionProductsController = {
     //METOD STORE
     createProducts: async (req, res) => {
         try {
-            const { 
+            const {
                 name,
                 description,
                 price,
                 image,
                 status_prod_id,
                 category_id
-             } = req.body;
-            const [rows] = await pool.query('INSERT INTO products (name, description, price, image, status_prod_id, category_id) VALUES (?,?,?,?,?,?)', 
+            } = req.body;
+            const [rows] = await pool.query('INSERT INTO products (name, description, price, image, status_prod_id, category_id) VALUES (?,?,?,?,?,?)',
                 [
                     name,
                     description,
@@ -43,7 +46,7 @@ const actionProductsController = {
                     image,
                     status_prod_id,
                     category_id
-                 ]);
+                ]);
             res.send({ rows });
         } catch (error) {
 
@@ -57,8 +60,9 @@ const actionProductsController = {
     updateProducts: async (req, res) => {
 
         try {
+
             const { id } = req.params;
-            const { 
+            const {
                 name,
                 description,
                 price,
@@ -66,14 +70,22 @@ const actionProductsController = {
                 status_prod_id,
                 category_id
             } = req.body;
-            const [result] = await pool.query('UPDATE products SET name = IFNULL(?,name), description = IFNULL(?,description), price = IFNULL(?,price), image = IFNULL(?,image), status_prod_id = IFNULL(?,status_prod_id), category_id = IFNULL(?,category_id) WHERE id = ?', 
+            // eliminar la imagen anterior
+            const [filename] = (await pool.query(('SELECT image FROM products WHERE id = ?'), [id]));
+
+            const filePath = path.join(process.cwd(), 'uploads', nameFileCut(filename[0].image));
+            if (fs.existsSync(filePath) && image !== filename[0].image) {
+                fs.unlinkSync(filePath);
+            }
+            //end eliminar la imagen anterior
+            const [result] = await pool.query('UPDATE products SET name = IFNULL(?,name), description = IFNULL(?,description), price = IFNULL(?,price), image = IFNULL(?,image), status_prod_id = IFNULL(?,status_prod_id), category_id = IFNULL(?,category_id) WHERE id = ?',
                 [
                     name,
                     description,
                     price,
                     image,
                     status_prod_id,
-                    category_id, 
+                    category_id,
                     id
                 ]);
             //console.log(result)
@@ -105,4 +117,13 @@ const actionProductsController = {
 
 }
 
+function nameFileCut(name) {
+    let c = name.length - 1, recap = '';
+    while(c>0){
+        if(name[c]==='/') return recap;
+        recap = name[c] + recap;
+        c--;
+    }
+
+}
 export default actionProductsController
