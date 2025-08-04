@@ -27,11 +27,19 @@ const actionOrdersItemsController = {
     //METOD STORE
     createOrdersItems: async (req, res) => {
         try {
-            const { order_id, product_id, quantity } = req.body;
-            const [rows] = await pool.query('INSERT INTO order_items (order_id, product_id, quantity) VALUES (?,?,?)', [order_id, product_id, quantity]);
+            const { 
+                order_id, 
+                product_id, 
+                quantity 
+            } = req.body;
+            const [rows] = await pool.query('INSERT INTO order_items (order_id, product_id, quantity) VALUES (?,?,?)', 
+                [
+                    order_id, 
+                    product_id, 
+                    quantity
+                ]);
             res.send({ rows });
         } catch (error) {
-
             return res.status(500).json({
                 message: 'Something wrong on server, function createOrdersItems'
             })

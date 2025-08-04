@@ -5,11 +5,13 @@ import actionOrdersController from "../controllers/orders.controller.js";
 const router = Router();
 const roat = {
     def : "/orders",
-    defID : "/orders/:id"
+    defID : "/orders/:id",
+    defByIdUser : "/orderbyuser/:id"
 }
 
 router.get(roat.def,actionOrdersController.getOrders);
 router.get(roat.defID,actionOrdersController.getOneOrders);
+router.get(roat.defByIdUser,actionOrdersController.getLastOrder);
 router.post(roat.def,actionOrdersController.createOrders);
 router.patch(roat.defID,actionOrdersController.updateOrders);
 router.delete(roat.defID,actionOrdersController.deleteOrders);

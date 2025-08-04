@@ -24,6 +24,18 @@ const actionOrdersController = {
             })
         }
     },
+    //get last order
+
+    getLastOrder: async (req, res) => {//obtener la ultima orden almacenada por usuario
+        try {
+            const [rows] = (await pool.query(('SELECT * FROM orders WHERE user_id = ? ORDER BY id DESC LIMIT 1'), [req.params.id]));
+            res.send(rows);
+        } catch (error) {
+            return res.status(500).json({
+                message: 'Something wrong on server'
+            })
+        }
+    },
     //METOD STORE
     createOrders: async (req, res) => {
         try {
