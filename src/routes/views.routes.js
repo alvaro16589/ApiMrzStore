@@ -9,6 +9,6 @@ const roat = {
 }
 
 router.get(roat.def,actionViewsController.getAllProductsCatStatus);
-
+router.post(roat.def,actionViewsController.getAllProductsAndOrders);
 
 export default router

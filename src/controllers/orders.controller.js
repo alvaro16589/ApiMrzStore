@@ -14,9 +14,20 @@ const actionOrdersController = {
     },
     //SHOW A Orders
 
-    getOneOrders: async (req, res) => {
+    getOrdersByUserID: async (req, res) => {
         try {
-            const [rows] = (await pool.query(('SELECT * FROM orders WHERE id = ?'), [req.params.id]));
+            const { user_id } = req.body;
+            const [rows] = (await pool.query((
+                `SELECT 
+                    orders.id, 
+                    orders.user_id, 
+                    orders.status_id, 
+                    created_at,state 
+                FROM orders 
+                INNER JOIN status 
+                ON orders.status_id = status.id 
+                WHERE user_id = ?`
+            ), [user_id]));
             res.send(rows);
         } catch (error) {
             return res.status(500).json({

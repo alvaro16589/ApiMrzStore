@@ -10,7 +10,7 @@ const roat = {
 }
 
 router.get(roat.def,actionOrdersController.getOrders);
-router.get(roat.defID,actionOrdersController.getOneOrders);
+router.post(roat.def,actionOrdersController.getOrdersByUserID);
 router.get(roat.defByIdUser,actionOrdersController.getLastOrder);
 router.post(roat.def,actionOrdersController.createOrders);
 router.patch(roat.defID,actionOrdersController.updateOrders);

@@ -16,7 +16,7 @@ const actionOrdersItemsController = {
 
     getOneOrdersItems: async (req, res) => {
         try {
-            const [rows] = (await pool.query(('SELECT * FROM order_items WHERE id = ?'), [req.params.id]));
+            const [rows] = (await pool.query(('SELECT * FROM order_items WHERE order_id = ?'), [req.params.id]));
             res.send(rows);
         } catch (error) {
             return res.status(500).json({
